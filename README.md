@@ -18,8 +18,8 @@ Arrow keys navigate, Page Up/Down switch maps.
 - **Spacebar** - Center camera on map
 
 ### Map Management
-- **Page Up** - Load previous map
-- **Page Down** - Load next map
+- **E** - Load previous map
+- **Q** - Load next map
 - **R** - Clear graphics cache (useful for development)
 - **Escape** - Exit application
 

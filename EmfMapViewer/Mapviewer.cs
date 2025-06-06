@@ -119,10 +119,11 @@ namespace EmfMapViewer
             if (keyboard.IsKeyDown(Keys.Down) || keyboard.IsKeyDown(Keys.S))
                 CameraPosition += new Vector2(0, moveSpeed);
             
-            if (keyboard.IsKeyDown(Keys.PageDown) && !prevKeyboard.IsKeyDown(Keys.PageDown))
-                LoadNextMap();
-            if (keyboard.IsKeyDown(Keys.PageUp) && !prevKeyboard.IsKeyDown(Keys.PageUp))
+            // Changed to use Q/E for map switching (Q = previous, E = next)
+            if (keyboard.IsKeyDown(Keys.Q) && !prevKeyboard.IsKeyDown(Keys.Q))
                 LoadPreviousMap();
+            if (keyboard.IsKeyDown(Keys.E) && !prevKeyboard.IsKeyDown(Keys.E))
+                LoadNextMap();
             
             if (keyboard.IsKeyDown(Keys.Space) && !prevKeyboard.IsKeyDown(Keys.Space))
             {
