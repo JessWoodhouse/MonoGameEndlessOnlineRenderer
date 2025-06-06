@@ -1,0 +1,157 @@
+# Visual Studio / Rider
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.csproj.user
+*.vcxproj.user
+*.pidb
+*.log
+*.cache
+*.ilk
+*.meta
+*.obj
+*.pdb
+*.opendb
+*.VC.db
+
+# Build results
+bin/
+obj/
+[Bb]uild/
+[Bb]uilds/
+out/
+release/
+publish/
+*.buildlog
+
+# NuGet
+*.nupkg
+**/packages/
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+# except build/, which is used as an MSBuild target.
+!**/packages/build/
+# Uncomment if necessary however generally it is safe to ignore:
+#!**/packages/repositories.config
+
+# DotNetCore / SDK
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# StyleCop
+StyleCopReport.xml
+
+# User-specific files
+*.rsuser
+*.suo
+*.userprefs
+*.user
+*.userosscache
+*.sln.docstates
+
+# MonoGame / Content Pipeline
+Content/obj/
+Content/bin/
+*.mgcb.lock.json
+# If using MGCB Editor generated files:
+*.mgcb
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# Rider
+.idea/
+*.sln.iml
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+ehthumbs.db
+
+# JetBrains Rider caches
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+
+# Coverage & Test Results
+*.coverage
+*.coveragexml
+*.coveragehtml
+TestResults/
+*.trx
+*.trx.xml
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# DotCover
+*.dotCover
+
+# SonarQube
+.sonarqube/
+
+# Code Analysis
+*.vsix
+*.nupkg.metadata
+
+# SSL Certificates (if any)
+*.pfx
+*.cer
+
+# Rider project files
+*.sln.iml
+.idea/
+
+# Windows Thumbnail cache
+Thumbs.db
+ehthumbs.db
+
+# Editor directories and files
+.vscode/
+.vscode-test/
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# Others
+*.pidb
+*.svclog
+*.user
+*.unsuccessfulbuild
+*.blf
+*.sdf
+
+# Mono auto-generated files
+mono_crash.*
+
+# Local build data
+local.settings.json
+appsettings.Development.json
+
+# If using Docker
+docker-compose.override.yml
+
