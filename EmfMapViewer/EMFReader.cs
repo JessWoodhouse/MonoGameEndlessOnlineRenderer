@@ -22,7 +22,7 @@ namespace EmfMapViewer
     public class EMFReader
     {
         private readonly string _filename;
-        private EoReader _r;
+        
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int FillTile { get; private set; }
@@ -30,70 +30,77 @@ namespace EmfMapViewer
 
         public EMFReader(string filename) => _filename = filename;
 
-        int E1(int b) => (b = (b == 0 || b == 254 ? 1 : b)) - 1;
-        int E2(int b1, int b2)
-        {
-            b1 = (b1 == 0 || b1 == 254 ? 1 : b1);
-            b2 = (b2 == 0 || b2 == 254 ? 1 : b2);
-            return (b2 - 1) * 253 + (b1 - 1);
-        }
-
         public bool Load()
         {
             try
             {
                 var data = File.ReadAllBytes(_filename);
-                _r = new EoReader(data);
-                var hdr = _r.GetBytes(0x2E);
-                if (hdr.Length < 3 || hdr[0] != (byte)'E' || hdr[1] != (byte)'M' || hdr[2] != (byte)'F')
-                    return false;
-
-                Width    = E1(hdr[0x25]);
-                Height   = E1(hdr[0x26]);
-                FillTile = E2(hdr[0x27], hdr[0x28]);
-
-                int n = E1(_r.GetByte()); _r.GetBytes(n * 8);
-                n = E1(_r.GetByte()); _r.GetBytes(n * 4);
-                n = E1(_r.GetByte()); _r.GetBytes(n * 12);
-
-                int rows = E1(_r.GetByte());
-                for (int i = 0; i < rows; i++)
-                {
-                    var rh = _r.GetBytes(2);
-                    _r.GetBytes(E1(rh[1]) * 2);
-                }
-
-                rows = E1(_r.GetByte());
-                for (int i = 0; i < rows; i++)
-                {
-                    var rh = _r.GetBytes(2);
-                    _r.GetBytes(E1(rh[1]) * 8);
-                }
-
-                for (int layer = 0; layer < 9; layer++)
-                {
-                    var layerRows = new List<GFXRow>();
-                    int count = E1(_r.GetByte());
-                    for (int r = 0; r < count; r++)
-                    {
-                        var rh = _r.GetBytes(2);
-                        int y = E1(rh[0]), c = E1(rh[1]);
-                        var tiles = new List<GFX>(c);
-                        for (int t = 0; t < c; t++)
-                        {
-                            var gb = _r.GetBytes(3);
-                            tiles.Add(new GFX(E1(gb[0]), E2(gb[1], gb[2])));
-                        }
-                        layerRows.Add(new GFXRow(y, tiles));
-                    }
-                    GfxRows.Add(layerRows);
-                }
-
+                var reader = new EoReader(data);
+                Deserialize(reader);
                 return true;
             }
             catch
             {
                 return false;
+            }
+        }
+
+        private void Deserialize(EoReader reader)
+        {
+            var hdr = reader.GetBytes(0x2E);
+            if (hdr.Length < 3 || hdr[0] != (byte)'E' || hdr[1] != (byte)'M' || hdr[2] != (byte)'F')
+                throw new InvalidOperationException("Invalid EMF file");
+
+            var headerReader = new EoReader(hdr);
+            Width = headerReader.Slice(0x25).GetChar();
+            Height = headerReader.Slice(0x26).GetChar();
+            FillTile = headerReader.Slice(0x27).GetShort();
+
+            int n = reader.GetChar();
+            reader.GetBytes(n * 8);
+            
+            n = reader.GetChar();
+            reader.GetBytes(n * 4);
+            
+            n = reader.GetChar();
+            reader.GetBytes(n * 12);
+
+            int rows = reader.GetChar();
+            for (int i = 0; i < rows; i++)
+            {
+                int y = reader.GetChar();
+                int count = reader.GetChar();
+                reader.GetBytes(count * 2);
+            }
+
+            rows = reader.GetChar();
+            for (int i = 0; i < rows; i++)
+            {
+                int y = reader.GetChar();
+                int count = reader.GetChar();
+                reader.GetBytes(count * 8);
+            }
+
+            for (int layer = 0; layer < 9; layer++)
+            {
+                var layerRows = new List<GFXRow>();
+                int count = reader.GetChar();
+                
+                for (int r = 0; r < count; r++)
+                {
+                    int y = reader.GetChar();
+                    int c = reader.GetChar();
+                    var tiles = new List<GFX>(c);
+                    
+                    for (int t = 0; t < c; t++)
+                    {
+                        int x = reader.GetChar();
+                        int tileId = reader.GetShort();
+                        tiles.Add(new GFX(x, tileId));
+                    }
+                    layerRows.Add(new GFXRow(y, tiles));
+                }
+                GfxRows.Add(layerRows);
             }
         }
     }
