@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Moffat.EndlessOnline.SDK.Data;
+using Moffat.EndlessOnline.SDK.Protocol.Map;
 
 namespace EmfMapViewer
 {
@@ -26,7 +27,7 @@ namespace EmfMapViewer
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int FillTile { get; private set; }
-        public List<List<GFXRow>> GfxRows { get; } = new(9);
+        public List<List<GFXRow>> GfxRows { get; set; } = new(9);
 
         public EMFReader(string filename) => _filename = filename;
 
@@ -47,61 +48,19 @@ namespace EmfMapViewer
 
         private void Deserialize(EoReader reader)
         {
-            var hdr = reader.GetBytes(0x2E);
-            if (hdr.Length < 3 || hdr[0] != (byte)'E' || hdr[1] != (byte)'M' || hdr[2] != (byte)'F')
-                throw new InvalidOperationException("Invalid EMF file");
+            var emf = new Emf();
+            emf.Deserialize(reader);
 
-            var headerReader = new EoReader(hdr);
-            Width = headerReader.Slice(0x25).GetChar();
-            Height = headerReader.Slice(0x26).GetChar();
-            FillTile = headerReader.Slice(0x27).GetShort();
+            Width = emf.Width;
+            Height = emf.Height;
+            FillTile = emf.FillTile;
 
-            int n = reader.GetChar();
-            reader.GetBytes(n * 8);
-            
-            n = reader.GetChar();
-            reader.GetBytes(n * 4);
-            
-            n = reader.GetChar();
-            reader.GetBytes(n * 12);
-
-            int rows = reader.GetChar();
-            for (int i = 0; i < rows; i++)
-            {
-                int y = reader.GetChar();
-                int count = reader.GetChar();
-                reader.GetBytes(count * 2);
-            }
-
-            rows = reader.GetChar();
-            for (int i = 0; i < rows; i++)
-            {
-                int y = reader.GetChar();
-                int count = reader.GetChar();
-                reader.GetBytes(count * 8);
-            }
-
-            for (int layer = 0; layer < 9; layer++)
-            {
-                var layerRows = new List<GFXRow>();
-                int count = reader.GetChar();
-                
-                for (int r = 0; r < count; r++)
-                {
-                    int y = reader.GetChar();
-                    int c = reader.GetChar();
-                    var tiles = new List<GFX>(c);
-                    
-                    for (int t = 0; t < c; t++)
-                    {
-                        int x = reader.GetChar();
-                        int tileId = reader.GetShort();
-                        tiles.Add(new GFX(x, tileId));
-                    }
-                    layerRows.Add(new GFXRow(y, tiles));
-                }
-                GfxRows.Add(layerRows);
-            }
+            GfxRows = [.. emf.GraphicLayers.Select((layer) =>
+                layer.GraphicRows.Select((row) =>
+                    new GFXRow(row.Y, [.. row.Tiles.Select((tile) => new GFX(tile.X, tile.Graphic)
+                    )])
+                ).ToList()
+            )];
         }
     }
 }
